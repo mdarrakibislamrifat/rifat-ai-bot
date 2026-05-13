@@ -20,21 +20,27 @@ export async function POST(req: Request) {
       LIMIT 5
     `);
 
-    const context = relevantDocs.rows.length > 0 
-      ? relevantDocs.rows.map((doc) => doc.content).join("\n\n") 
-      : "No relevant context found.";
+    const context =
+      relevantDocs.rows.length > 0
+        ? relevantDocs.rows.map((doc) => doc.content).join("\n\n")
+        : "No relevant context found.";
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+
     const prompt = `
-      You are a helpful AI assistant for a website. 
-      Use the following context to answer the user's question. 
-      If the answer is not in the context, say you don't know, don't make up things.
-      
-      Context: ${context}
-      
-      User Question: ${message}
-    `;
+  You are an expert sales assistant for this website. 
+  
+  CONTEXT:
+  ${context}
+
+  USER QUESTION: ${message}
+
+  INSTRUCTIONS:
+  1. If the user asks about available products, list the product names found in the context.
+  2. Even if the information is partial, provide what is available (e.g., product categories, brands).
+  3. Answer in the same language as the user.
+  4. If NO product names are found in the context, then only mention price filters or categories.
+`;
 
     const result = await model.generateContent(prompt);
     const response = result.response.text();
@@ -42,6 +48,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ text: response });
   } catch (error) {
     console.error("Chat Error:", error);
-    return NextResponse.json({ error: "Failed to fetch response" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch response" },
+      { status: 500 },
+    );
   }
 }
