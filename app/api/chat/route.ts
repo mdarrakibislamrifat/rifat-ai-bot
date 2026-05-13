@@ -13,12 +13,14 @@ export async function POST(req: Request) {
 
     const userMessageEmbedding = await generateEmbeddings(message);
 
-    const relevantDocs = await db.execute<{ content: string }>(sql`
-      SELECT content FROM documents 
-      WHERE chatbot_id = ${chatbotId} 
-      ORDER BY embedding <=> ${JSON.stringify(userMessageEmbedding)}::vector 
-      LIMIT 5
-    `);
+    const vectorString = `[${userMessageEmbedding.join(",")}]`;
+
+      const relevantDocs = await db.execute<{ content: string }>(sql`
+        SELECT content FROM documents
+        WHERE chatbot_id = ${chatbotId}
+        ORDER BY embedding <=> ${vectorString}::vector
+        LIMIT 5
+      `);
 
     const context =
       relevantDocs.rows.length > 0
