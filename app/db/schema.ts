@@ -20,7 +20,7 @@ export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   chatbotId: uuid("chatbot_id").references(() => chatbots.id, { onDelete: 'cascade' }),
   content: text("content").notNull(), 
-  embedding: vector("embedding", { dimensions: 1536 }), 
+  embedding: vector("embedding", { dimensions: 768 }), 
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").defaultNow(),
 });
