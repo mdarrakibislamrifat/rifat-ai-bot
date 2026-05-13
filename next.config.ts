@@ -1,7 +1,13 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/chatbot/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" }, 
+          { key: "Content-Security-Policy", value: "frame-ancestors *" },
+        ],
+      },
+    ];
+  },
 };
-
-export default nextConfig;
